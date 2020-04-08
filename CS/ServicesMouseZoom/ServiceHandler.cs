@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows.Forms;
 using DevExpress.XtraScheduler;
 using DevExpress.Services;
+using DevExpress.Portable.Input;
 
 namespace ServicesMouseZoom {
     public class MyMouseHandlerService : MouseHandlerServiceWrapper {
@@ -15,14 +16,14 @@ namespace ServicesMouseZoom {
             this.provider = provider;
         }
 
-        public override void OnMouseWheel(MouseEventArgs e) {
+        public override void OnMouseWheel(PortableMouseEventArgs e) {
             DayView curView = ((SchedulerControl)provider).DayView;
             int nSlots = curView.TimeSlots.Count;
 
-            if (this.myzoomEnabled) {
-                if (e.Delta < 0) {
-                    for (int i = 0; i < nSlots; i++) {
-                        if (curView.TimeSlots[i].Value <= curView.TimeScale) {
+            if(this.myzoomEnabled) {
+                if(e.Delta < 0) {
+                    for(int i = 0; i < nSlots; i++) {
+                        if(curView.TimeSlots[i].Value <= curView.TimeScale) {
                             curView.TimeScale = curView.TimeSlots[i].Value;
                             break;
                         }
@@ -30,8 +31,8 @@ namespace ServicesMouseZoom {
 
                 }
                 else {
-                    for (int i = nSlots - 1; i >= 0; i--) {
-                        if (curView.TimeSlots[i].Value >= curView.TimeScale) {
+                    for(int i = nSlots - 1; i >= 0; i--) {
+                        if(curView.TimeSlots[i].Value >= curView.TimeScale) {
                             curView.TimeScale = curView.TimeSlots[i].Value;
                             break;
                         }
@@ -42,10 +43,7 @@ namespace ServicesMouseZoom {
                 base.OnMouseWheel(e);
             }
         }
-
         public bool myZoomEnabled { get { return this.myzoomEnabled; } set { this.myzoomEnabled = value; } }
-
-
     }
 
     public class MyKeyboardHandlerService : KeyboardHandlerServiceWrapper {
@@ -54,19 +52,16 @@ namespace ServicesMouseZoom {
         public MyKeyboardHandlerService(IServiceProvider provider, IKeyboardHandlerService service)
             : base(service) {
             this.provider = provider;
-
         }
-
-        public override void OnKeyDown(KeyEventArgs e) {
-
-            if (e.Control) {
+        public override void OnKeyDown(PortableKeyEventArgs e) {
+            if(e.Control) {
                 MyMouseHandlerService mouseHandler = (MyMouseHandlerService)provider.GetService(typeof(IMouseHandlerService));
-                if (mouseHandler != null) {
+                if(mouseHandler != null) {
                     mouseHandler.myZoomEnabled = !mouseHandler.myZoomEnabled;
                 }
             }
             base.OnKeyDown(e);
-        }
+        }        
     }
 
 }
